@@ -1,0 +1,73 @@
+Date: 2023-04-26 
+Purpose: create a function that takes in two MEM labels, and outputs the differences between the two 
+Author: Cass Mayeda 
+
+```{r, setup}
+source("R/delta_MEM.R")
+```
+
+## Input type handling 
+
+```{r, input type 1: strings}
+label1 = "1	1 : ▲ MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
+label2 = "1	1 : ▲ MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
+delta_MEM(label1, label2)
+```
+
+```{r, input type 2: files}
+file1 = paste0(getwd(), "/test_cases/2023-04-25_232123 enrichment score-rownames.txt")
+file2 = paste0(getwd(), "/test_cases/2023-04-25_234228 enrichment score-rownames.txt")
+delta_MEM(file1, file2)
+```
+
+
+
+```{r, input type 3: folder}
+folderpath =  paste0(getwd(), "/test_cases")
+delta_MEM(folderpath)
+```
+
+## Error handling 
+
+```{r, string error 1: there is no tab separation}
+label1 = "1 : ▲ MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
+label2 = "1 : ▲ MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
+delta_MEM(label1, label2)
+```
+
+```{r, string error 2: if there is no cluster #}
+label1 = "MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
+label2 = "1 : MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
+delta_MEM(label1, label2)
+```
+```{r, file error 1: incorrect file 1 name}
+file1 = paste0(getwd(), "/test_cases/2023-04-25_232123 enrichment score-rownames.txt")
+file2 = paste0(getwd(), "/test_cases/2023-04-25_234228 enrichment score-rownames")
+delta_MEM(file1, file2)
+```
+
+```{r, file error 2: incorrect file 2 name}
+source("R/delta_MEM.R")
+
+file1 = paste0(getwd(), "/test_cases/2023-04-25_234228 enrichment score-rownames")
+file2 = paste0(getwd(), "/test_cases/2023-04-25_232123 enrichment score-rownames.txt")
+delta_MEM(file1, file2)
+```
+
+```{r, folder error 1: incorrect folder path}
+filepath =  paste0(getwd(), "/delta_cases/")
+delta_MEM(filepath)
+```
+
+```{r, folder error 2: folder exists, but files incorrect}
+filepath = paste0(getwd(), "/error_cases/")
+delta_MEM(filepath)
+```
+
+
+
+
+
+
+
+
