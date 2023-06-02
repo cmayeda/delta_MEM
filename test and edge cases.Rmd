@@ -8,13 +8,57 @@ source("R/delta_MEM.R")
 
 ## Input type handling 
 
-```{r, input type 1: strings}
+```{r case 1}
+# Input type: 2 strings 
+# duplicated matching cluster numbers
+
 label1 = "1	1 : ▲ MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
 label2 = "1	1 : ▲ MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
 delta_MEM(label1, label2)
 ```
 
-```{r, input type 2: files}
+```{r case 2}
+# Input type: 2 strings
+# no cluster numbers
+
+label1 = "MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
+label2 = "MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
+delta_MEM(label1, label2)
+```
+
+```{r case 3}
+# Input type: 2 strings
+# mismatched cluster numbers 
+
+label1 = "1 : ▲ MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1"
+label2 = "5 : ▲ MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+5"
+delta_MEM(label1, label2)
+```
+```{r case 4}
+# Input type: 2 strings 
+# mismatched cluster numbers 
+# missing triangles 
+
+label1 = "1 : MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1"
+label2 = "5 : MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+5"
+delta_MEM(label1, label2)
+```
+
+```{r case 4}
+# Input type: 2 strings 
+# mismatched cluster numbers longer than 1 digit
+
+label1 = "10 : MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1"
+label2 = "55 : MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+5"
+delta_MEM(label1, label2)
+```
+
+
+
+```{r case 5}
+# Input type: 2 files 
+# Exactly matching cluster numbers 
+
 file1 = paste0(getwd(), "/test_cases/2023-04-25_232123 enrichment score-rownames.txt")
 file2 = paste0(getwd(), "/test_cases/2023-04-25_234228 enrichment score-rownames.txt")
 delta_MEM(file1, file2)
@@ -22,44 +66,66 @@ delta_MEM(file1, file2)
 
 
 
-```{r, input type 3: folder}
+```{r case 6}
+# Input type: a folder with two files
+# Exactly matching cluster numbers 
+
 folderpath =  paste0(getwd(), "/test_cases")
 delta_MEM(folderpath)
 ```
 
 ## Error handling 
 
-```{r, string error 1: there is no tab separation}
-label1 = "1 : ▲ MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
-label2 = "1 : ▲ MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
-delta_MEM(label1, label2)
-```
+```{r error case 1}
+# Input type: 2 strings 
+# Error: cluster # for only the second label 
 
-```{r, string error 2: if there is no cluster #}
 label1 = "MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
 label2 = "1 : MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
 delta_MEM(label1, label2)
 ```
-```{r, file error 1: incorrect file 1 name}
+
+```{r error case 2}
+# Input type: 2 strings 
+# Error: cluster # for only the first label 
+
+label1 = "14 : MBP+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 VIMENTIN+2 S100B+1 SOX2+1 CUX1+1 ▼ None"
+label2 = "MBP+8 VIMENTIN+8 GFAP+4 POU2F3+4 HH3+4 CD44+3 S100B+1 SOX2+1 ▼ None"
+delta_MEM(label1, label2)
+```
+
+
+
+```{r error case 3}
+# Input type: 2 files 
+# Error: incorrect second file name 
+
 file1 = paste0(getwd(), "/test_cases/2023-04-25_232123 enrichment score-rownames.txt")
 file2 = paste0(getwd(), "/test_cases/2023-04-25_234228 enrichment score-rownames")
 delta_MEM(file1, file2)
 ```
 
-```{r, file error 2: incorrect file 2 name}
-source("R/delta_MEM.R")
+```{r error case 4}
+# Input type: 2 files 
+# Error: incorrect first file name 
 
 file1 = paste0(getwd(), "/test_cases/2023-04-25_234228 enrichment score-rownames")
 file2 = paste0(getwd(), "/test_cases/2023-04-25_232123 enrichment score-rownames.txt")
 delta_MEM(file1, file2)
 ```
 
-```{r, folder error 1: incorrect folder path}
+```{r error case 5}
+# Input type: folder
+# Error: incorrect folder path
+
 filepath =  paste0(getwd(), "/delta_cases/")
 delta_MEM(filepath)
 ```
 
-```{r, folder error 2: folder exists, but files incorrect}
+```{r error case 6}
+# Input type: folder
+# Error: incorrect folder path
+
 filepath = paste0(getwd(), "/error_cases/")
 delta_MEM(filepath)
 ```

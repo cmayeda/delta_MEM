@@ -5,17 +5,16 @@ parse_label <- function(input_str) {
     input_str <- unlist(strsplit(input_str, "\t"))[2]
   }
   input_split = unlist(strsplit(input_str, " "))
-  label_names = c("cluster")
-  label_values = as.numeric(input_split[1])
-  
-  if ((is.na(label_values))) {
-    stop("Could not find a cluster number. Please check your file path, and/or 
-    MEM label format. A label should follow the format '# : ▲ term+#' \n")
-  }
-  
-  for (term in input_split[4:length(input_split)]) {
-    term_split = unlist(strsplit(term, "\\+"))
-    if ((term_split[1] != "None") & (term_split[1] != "▼")) {
+  label_names = c()
+  label_values = c()
+  for (term in input_split) {
+    
+    # handle cluster number 
+    if ((term == input_split[1] | term == input_split[2]) & suppressWarnings(!is.na(as.numeric(term)))) {
+      label_names <- c("cluster")
+      label_values <- as.numeric(term)
+    } else if (term != ":" & term != "▲" & term != "None" & term != "▼") {
+      term_split = unlist(strsplit(term, "\\+"))
       label_names[length(label_names) + 1] <- term_split[1]
       label_values[length(label_values) + 1] <- as.numeric(term_split[2])
     }
@@ -35,36 +34,50 @@ parse_file <- function(filepath) {
 }
 
 compare_labels <- function(label1, label2) {
-  clust = label1[1]
-  all.markers = names(label1)[2:length(names(label1))]
+  delta.label = NULL
   delta.table = NULL
   
   # markers in both labels
   for (marker in intersect(names(label1), names(label2))) {
-    num = label2[marker] - label1[marker]
-    if (num != 0) { 
-      delta.table[length(delta.table) + 1] <- num
-      names(delta.table)[length(delta.table)] <- marker
-    } 
+    if (marker == "cluster") {
+      if (label1[marker] == label2[marker]) { 
+        delta.label <- paste0(label1[marker]," \U1D6AB : ")
+      } else { 
+        delta.label <- paste0(label1[marker]," \U1D6AB ",label2[marker]," : ")
+      }
+    } else {
+      num = label2[marker] - label1[marker]
+      if (num != 0) { 
+        delta.table[length(delta.table) + 1] <- num
+        names(delta.table)[length(delta.table)] <- marker
+      } 
+    }
   }  
   
   # markers in label2, but not label1 
   for (marker in setdiff(names(label2), names(label1))) {
-    delta.table[length(delta.table) + 1] <- label2[marker]
-    names(delta.table)[length(delta.table)] <- marker
+    if (marker == "cluster") { 
+      warning("A cluster number was only found in one comparison label. Printing delta MEM label without cluster number. \n")
+    } else {
+      delta.table[length(delta.table) + 1] <- label2[marker]
+      names(delta.table)[length(delta.table)] <- marker
+    }
   }
   
   # markers in label1, but not label2
   for (marker in setdiff(names(label1), names(label2))) {
-    delta.table[length(delta.table) + 1] <- 0 - label1[marker]
-    names(delta.table)[length(delta.table)] <- marker    
+    if (marker == "cluster") { 
+      warning("A cluster number was only found in one comparison label. Printing delta MEM label without cluster number. \n")
+    } else {
+      delta.table[length(delta.table) + 1] <- 0 - label1[marker]
+      names(delta.table)[length(delta.table)] <- marker  
+    }
   }
   
   # format as string
   if (is.null(delta.table)) {
-    delta.label <- "No change"
+    delta.label <- paste0(delta.label, "No change")
   } else {
-    delta.label = NULL
     delta.table <- delta.table[order(abs(delta.table), decreasing = TRUE)]
     for (i in 1:length(delta.table)) {
       marker = names(delta.table)[i]
@@ -76,7 +89,6 @@ compare_labels <- function(label1, label2) {
     }
     delta.label <- substr(delta.label, 1, nchar(delta.label) - 1)
   }
-  delta.label <- paste0(clust, " : \U1D6AB ", delta.label)
   return(delta.label)
 }  
 
@@ -93,14 +105,12 @@ delta_MEM <- function(X, Y = NULL) {
     } 
   } 
   if (is.null(Y)) {
-    stop("One of your files could not be found. Please check your 
-           folder or file paths.")
+    stop("One of your files could not be found. Please check your folder or file paths.")
   }
   
   if (file.exists(X)) {
     if (!file.exists(Y)) {
-      stop("One of your files could not be found. Please check your 
-           folder or file paths.")
+      stop("One of your files could not be found. Please check your folder or file paths.")
     } else {
       all.parsed[[1]] <- parse_file(X)
       all.parsed[[2]] <- parse_file(Y)
@@ -116,8 +126,7 @@ delta_MEM <- function(X, Y = NULL) {
     }
   } else if (!file.exists(X)) {
     if (file.exists(Y)) {
-      stop("One of your files could not be found. Please check your 
-           folder or file paths.")
+      stop("One of your files could not be found. Please check your folder or file paths.")
     } else if (is.character(X) & is.character(Y)) {
       return(compare_labels(parse_label(X), parse_label(Y)))
     } 
