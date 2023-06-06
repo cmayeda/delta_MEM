@@ -67,12 +67,24 @@ delta_MEM(file1, file2)
 
 
 ```{r case 6}
-# Input type: a folder with two files
-# Exactly matching cluster numbers 
+# Input type: folder path 
 
 folderpath =  paste0(getwd(), "/test_cases")
 delta_MEM(folderpath)
 ```
+```{r case 7}
+# Input type: 2 strings
+# no cluster numbers
+# some of the markers have +0 
+
+source("R/delta_MEM.R")
+
+label1 = "CD34+0 CD38+2 CD45+0"
+label2 = "CD34+8 CD38+6 CD45+0 CD19+0 TdT+0"
+
+delta_MEM(label1, label2)
+```
+
 
 ## Error handling 
 

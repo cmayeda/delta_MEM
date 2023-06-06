@@ -82,7 +82,7 @@ compare_labels <- function(label1, label2) {
     for (i in 1:length(delta.table)) {
       marker = names(delta.table)[i]
       num = delta.table[i]
-      if (num > 0) {
+      if (num >= 0) {
         num <- paste0("+", num)
       }
       delta.label <- paste0(delta.label, marker, num, " ")
